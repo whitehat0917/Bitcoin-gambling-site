@@ -1,0 +1,10 @@
+export const TOGGLE_FLAG = 'react-minesweeper/TOGGLE_FLAG';
+export const INIT = 'react-minesweeper/INIT';
+export const CHANGE_DIFFICULTY = 'react-minesweeper/CHANGE_DIFFICULTY';
+export const GAMEOVER = 'react-minesweeper/GAMEOVER';
+export const CLEAR = 'react-minesweeper/CLEAR';
+export const SETBALANCE = 'react-minesweeper/SETBALANCE';
+export const CHANGEBALANCE = 'react-minesweeper/CHANGEBALANCE';
+export const SETBITCOINADDRESS = 'react-minesweeper/SETBITCOINADDRESS';
+export const CHANGEUUID = 'react-minesweeper/CHANGEUUID';
+export const CHANGEBACKGROUND = 'react-minesweeper/CHANGEBACKGROUND';

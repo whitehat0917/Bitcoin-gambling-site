@@ -1,0 +1,19 @@
+.board {
+  display: flex;
+}
+
+.process {
+  width: 100%;
+}
+
+.font-30 {
+  font-size: 30px;
+}
+
+.yellow {
+  color: yellow;
+}
+
+.next {
+  color: #8d4;
+}

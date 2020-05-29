@@ -1,1 +1,2 @@
-# Bitcoin-gambling-site
+# BitExplode
+ the minesweeper game
