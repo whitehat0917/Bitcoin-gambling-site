@@ -33,8 +33,10 @@ export default class Cell extends React.Component {
   render() {
     let content = this.props.cell.flagged ? <FaFlag /> : '';
     let style = {};
+    let className = "";
     if (this.props.cell.open) {
       style = Object.assign({}, style, openStyle);
+      className = "open";
       if (this.props.cell.bomb) {
         content = <FaCertificate style={{ marginTop: 2 }} />
         style = Object.assign({}, style, bombStyle);
@@ -44,7 +46,7 @@ export default class Cell extends React.Component {
     }
     return (
       <div
-        className="cell"
+        className={"cell " + className}
         style={style}
         onClick={this._handleClick}
         onContextMenu={this._handleRightClick}

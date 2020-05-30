@@ -26,8 +26,7 @@ export default class BitcoinModal extends React.Component {
                 </ul>
               </div>
               <p>{this.props.errorMessage}</p>
-              {/* <button onClick={this.props.handleClose}>Cancel</button> */}
-              <button onClick={this.handleClick}>Cancel</button>
+              <button onClick={this.props.handleClose}>Cancel</button>
               <button onClick={this.props.handleDeposit}>I deposited</button>
             </div>
             <div label="Withdraw">

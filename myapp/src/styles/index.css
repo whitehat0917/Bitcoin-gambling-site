@@ -12,7 +12,6 @@ body {
     width: 100%;
     height: 100%;
     min-height: 100vh;
-    background: cadetblue;
 }
 
 a {
@@ -43,15 +42,18 @@ p {
 }
 
 .background-1 {
-    background: url("../images/background1.png");
+    background-image: linear-gradient(to top right, #15181f, #15261f);
+    transition: background 1s;
 }
 
 .background-2 {
-    background: url("../images/background2.png");
+    background-image: linear-gradient(to top right, #15181f, #46dc3b);
+    transition: background 1s;
 }
 
 .background-3 {
-    background: url("../images/background3.png");
+    background-image: linear-gradient(to top right, #15181f, #a7261f);
+    transition: background 1s;
 }
 
 .text-center {

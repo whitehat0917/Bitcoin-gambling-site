@@ -25,7 +25,7 @@ export default class Board extends React.Component {
 
   render() {
     return (
-      <div className="board">
+      <div className={"board " + this.props.processing + " gameover-" + this.props.gameover}>
         {this.renderRows()}
       </div>
     )

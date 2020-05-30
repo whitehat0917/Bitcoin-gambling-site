@@ -1,15 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { FaCertificate } from 'react-icons/fa';
+// import { FaCertificate } from 'react-icons/fa';
 import axios from "axios";
+import { AnimateGroup } from 'react-animation';
 import Board from './Board';
 import BitcoinModal from './BitcoinModal';
 import config from '../setting/config';
 import difficultyData from "../setting/difficulty";
-import { toggle, init, changeDifficulty, gameover, clear, changeBalance, setBitcoinAddress, changeUuid, changeBackground } from '../store/actions';
+import { changeDifficulty, gameover, clear, changeBalance, setBitcoinAddress, changeUuid } from '../store/actions';
 import Header from './Header';
 import '../styles/Game.scss';
-import BombImage from "../images/bomb.png";
+// import BombImage from "../images/bomb.png";
 
 class Game extends React.Component {
   constructor(props) {
@@ -65,7 +66,7 @@ class Game extends React.Component {
     const difficulty_array = this.state.difficulty_array;
     for (let item of difficulty_array) {
       item.active = false;
-      if (item.value == value)
+      if (item.value === value)
         item.active = true;
     }
     this.setState({difficulty_array: difficulty_array});
@@ -83,14 +84,14 @@ class Game extends React.Component {
   }
 
   handleClickCashout() {
-    if (this.props.gameover){
+    if (this.state.processing === false){
       return;
     }
     this.cashOut();
     const { balance, gain } = this.state;
     this.handleChangeBalance(balance + gain);
     this.setState({
-      gameDisplayMessage: this.state.gameDisplayMessage.concat("Cashed out "+gain+" practice bits.")
+      gameDisplayMessage: new Array("Cashed out "+gain+" practice bits.").concat(this.state.gameDisplayMessage)
     })
     this.setState({
       processing: false,
@@ -120,6 +121,10 @@ class Game extends React.Component {
     const { difficulty } = this.props;
     if (initStake === 0) {
       alert('You must set initial Stake');
+      return;
+    }
+    if (initStake < 100) {
+      alert('You must set the bigger initial Stake than 100');
       return;
     }
     if (initStake > balance) {
@@ -167,6 +172,12 @@ class Game extends React.Component {
 
   _open(x, y) {
     const board = [].concat(this.state.board);
+    if (this.props.gameover === true){
+      this.setState({
+        gameDisplayMessage: new Array("You cannot make any more guesses. This game is already over.").concat(this.state.gameDisplayMessage)
+      })
+      return;
+    }
     if (!board[x][y].open) {
       board[x][y] = Object.assign({}, board[x][y], { open: true, bombCount: 0 });
       this.setState({ board });
@@ -175,6 +186,9 @@ class Game extends React.Component {
       }
       if (board[x][y].bomb) {
         this.setState({background: 3});
+        setTimeout(() => {
+          this.setState({background: 1});
+        }, 1100);
         this.props.dispatch(gameover(true));
         this.setState({
           processing: false,
@@ -182,7 +196,7 @@ class Game extends React.Component {
         });
         return;
       }
-      const { balance, gain, rate } = this.state;
+      const { balance, gain } = this.state;
       
       if (this._isClear(board)) {
         this.props.dispatch(clear(true));
@@ -191,7 +205,7 @@ class Game extends React.Component {
           processing: false,
         });
         this.setState({
-          gameDisplayMessage: this.state.gameDisplayMessage.concat("You found all bits.").concat("You get "+(gain+balance)+" bits.")
+          gameDisplayMessage: new Array("You found all bits.").concat("You get "+(gain+balance)+" bits.").concat(this.state.gameDisplayMessage)
         })
       }
     }
@@ -291,7 +305,7 @@ class Game extends React.Component {
     if (res.data.success === true){
         if (res.data.game_status === false){
             this.setState({
-              gameDisplayMessage: this.state.gameDisplayMessage.concat("Gameover!")
+              gameDisplayMessage: new Array("Gameover").concat(this.state.gameDisplayMessage)
             })
             const board = [].concat(this.state.board);
             let bombPlaces = res.data.bombPlaces.split("-");
@@ -304,8 +318,11 @@ class Game extends React.Component {
             this._open(x, y);
         }else{
           this.setState({background: 2});
+          setTimeout(() => {
+            this.setState({background: 1});
+          }, 1100);
           this.setState({
-            gameDisplayMessage: this.state.gameDisplayMessage.concat("You found "+this.state.rate+" bits in tile "+guessPlace)
+            gameDisplayMessage: new Array("You found "+this.state.rate+" bits in tile "+guessPlace).concat(this.state.gameDisplayMessage)
           });
           const board = [].concat(this.state.board);
           board[x][y] = Object.assign({}, board[x][y], { guess: this.state.rate });
@@ -313,12 +330,20 @@ class Game extends React.Component {
           this.setState({rate: res.data.next});
           this._open(x, y);
           const { gain } = this.state;
-          this.setState({
-            gain: gain + res.data.prev,
-          })
+          let tempGain = gain;
+          let tempTime = parseInt(800 / res.data.prev);
+          const interval = setInterval(() => {
+            tempGain++;
+            if (tempGain > gain + res.data.prev){
+              clearInterval(interval);
+              return;
+            }else{
+              this.setState({
+                gain: tempGain,
+              })
+            }
+          }, tempTime);
         }
-    }else{
-        alert(res.data.status);
     }
   }
 
@@ -341,23 +366,23 @@ class Game extends React.Component {
     let { board, balance, initStake, gain } = this.state;
     balance = Number((balance).toFixed(0));
     gain = Number.parseFloat(gain).toFixed(2);
-    const { difficulty, gameover, clear, bomb } = this.props;
+    const { gameover, clear } = this.props;
     let status = <span className="status"></span>
     if (gameover) {
       status = <span id="gameover" className="status">Gameover</span>
     } else if (clear) {
       status = <span id="clear" className="status">Clear!</span>
     }
-    const difficultyItems = this.state.difficulty_array.map(item => <li key={item.count}><a data-set={item.value} className={item.active == true ? 'active':''} onClick={(e) => this.handleChangeDifficulty(e)}>{item.count}</a></li>)
-    const showMessage = this.state.gameDisplayMessage.map(item => <p>{item}</p>)
+    const difficultyItems = this.state.difficulty_array.map(item => <li key={item.count}><a data-set={item.value} className={item.active === true ? 'active':''} onClick={(e) => this.handleChangeDifficulty(e)}>{item.count}</a></li>)
+    const showMessage = this.state.gameDisplayMessage.map(item => <p key={item}>{item}</p>)
 
     return (
-      <div className={this.state.background == 1?"mainScreen background-1":this.state.background == 2?"mainScreen background-2":"mainScreen background-3"}>
+      <div className={this.state.background === 1?"mainScreen background-1":this.state.background === 2?"mainScreen background-2":"mainScreen background-3"}>
         <Header />
         <div id="game">
           <div className="board-wrapper">
             <div className="header-wrapper">
-              <div className={this.state.background == 1?"difficulty-wrapper wrapper-background1":this.state.background == 2?"difficulty-wrapper wrapper-background2":"difficulty-wrapper wrapper-background3"}>
+              <div className={this.state.background === 1?"difficulty-wrapper wrapper-background1":this.state.background === 2?"difficulty-wrapper wrapper-background2":"difficulty-wrapper wrapper-background3"}>
                 <span>Bombs</span>
                 <ul>
                   {difficultyItems}
@@ -370,45 +395,48 @@ class Game extends React.Component {
               board={board}
               next={this.state.rate}
               processing = {this.state.processing}
+              gameover = {this.props.gameover}
               onClick={this.handleClickCell}
               onRightClick={this.handleRightClickCell}
               handleClickCashout={this.handleClickCashout}
             />
             <div className="header-wrapper pt-1 width-95">
-              <div className={this.state.background == 1?"input-wrapper wrapper-background1":this.state.background == 2?"input-wrapper wrapper-background2":"input-wrapper wrapper-background3"}>
+              <div className={this.state.background === 1?"input-wrapper wrapper-background1":this.state.background === 2?"input-wrapper wrapper-background2":"input-wrapper wrapper-background3"}>
                 <input type="number" className="stake white" value={initStake} onChange={(e) => this.handleStakeChange(e)}/>
               </div>
-              <div className="plus-balance-wrapper text-center" style={{fontSize: '1.9rem'}} onClick={this.plusInitStake}>+</div>
-              <div className="plus-balance-wrapper text-center font-bold" style={{fontSize: '1.2rem'}} onClick={this.doubleInitStake}>x2</div>
+              <div className="plus-balance-wrapper text-center button-hover" style={{fontSize: '1.9rem'}} onClick={this.plusInitStake}>+</div>
+              <div className="plus-balance-wrapper text-center font-bold button-hover" style={{fontSize: '1.2rem'}} onClick={this.doubleInitStake}>x2</div>
             </div>
             <div className="header-wrapper pt-1 width-96">
-              <div className="play-wrapper text-center font-bold" onClick={this.handleStart}>Play</div>
-              <div className={"cashout-wrapper text-center font-bold " + this.props.gameover} onClick={this.handleClickCashout}>Cashout</div>
+              <div className="play-wrapper text-center font-bold button-hover" onClick={this.handleStart}>Play</div>
+              <div className={"cashout-wrapper text-center font-bold button-hover " + this.props.gameover} onClick={this.handleClickCashout}>Cashout</div>
             </div>
           </div>
           <div className="history-wrapper">
-            <div className={this.state.background == 1?"balance-wrapper text-center wrapper-background1":this.state.background == 2?"balance-wrapper text-center wrapper-background2":"balance-wrapper text-center wrapper-background3"}>
+            <div className={this.state.background === 1?"balance-wrapper text-center wrapper-background1":this.state.background === 2?"balance-wrapper text-center wrapper-background2":"balance-wrapper text-center wrapper-background3"}>
               <span className="balance-label">Balance</span>
               <span className="balance"> {balance} </span>
             </div>
             <div className="header-wrapper">
-              <div className="withdraw-wrapper text-center font-bold" onClick={this.handleShowModal}>Withdraw</div>
-              <div className="deposit-wrapper text-center font-bold" onClick={this.handleShowModal}>Deposit</div>
+              <div className="withdraw-wrapper text-center font-bold button-hover" onClick={this.handleShowModal}>Withdraw</div>
+              <div className="deposit-wrapper text-center font-bold button-hover" onClick={this.handleShowModal}>Deposit</div>
             </div>
-            <div className={this.state.background == 1?"history-detail-wrapper wrapper-background1":this.state.background == 2?"history-detail-wrapper wrapper-background2":"history-detail-wrapper wrapper-background3"}>
+            <div className={this.state.background === 1?"history-detail-wrapper wrapper-background1":this.state.background === 2?"history-detail-wrapper wrapper-background2":"history-detail-wrapper wrapper-background3"}>
               <span className="history-label">History</span>
             </div>
-            <div className={this.state.background == 1?"message-wrapper wrapper-background1":this.state.background == 2?"message-wrapper wrapper-background2":"message-wrapper wrapper-background3"}>
+            <div className={this.state.background === 1?"message-wrapper wrapper-background1":this.state.background === 2?"message-wrapper wrapper-background2":"message-wrapper wrapper-background3"}>
               <span className="message-label">Bit-explode</span>
-              {showMessage}
+              <AnimateGroup animationIn="popIn">
+                {showMessage}
+              </AnimateGroup>
             </div>
             <div className="footer-wrapper">
-              <div className={this.state.background == 1?"rate-wrapper wrapper-background1":this.state.background == 2?"rate-wrapper wrapper-background2":"rate-wrapper wrapper-background3"}>
-                <span className="span-label">Next</span>
+              <div className={this.state.background === 1?"rate-wrapper wrapper-background1":this.state.background === 2?"rate-wrapper wrapper-background2":"rate-wrapper wrapper-background3"}>
+                <span className="span-label">Next Tile</span>
                 <span className="span-content"> {this.state.rate} </span>
               </div>
-              <div className={this.state.background == 1?"stake-wrapper wrapper-background1":this.state.background == 2?"stake-wrapper wrapper-background2":"stake-wrapper wrapper-background3"}>
-                <span className="span-label">Stake</span>
+              <div className={this.state.background === 1?"stake-wrapper wrapper-background1":this.state.background === 2?"stake-wrapper wrapper-background2":"stake-wrapper wrapper-background3"}>
+                <span className="span-label">Current Game</span>
                 <span className="span-content"> {this.state.gain} </span>
               </div>
             </div>
