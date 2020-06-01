@@ -271,7 +271,8 @@ class Game extends React.Component {
   async componentDidMount() {
     this.setState({ uuid: this.props.match.params.id });
     try {
-      const response = await axios.post('http://localhost:8080/api/users/login', { uuid: this.props.match.params.id });
+      // const response = await axios.post('http://localhost:8080/api/users/login', { uuid: this.props.match.params.id });
+      const response = await axios.post('http://161.35.121.255:8080/api/users/login', { uuid: this.props.match.params.id });
       this.handleSetBitcoinAddress(response.data.data.wallet_address);
       this.handleChangeBalance(response.data.data.balance);
       console.log('👉 Returned data:', response);
@@ -281,7 +282,8 @@ class Game extends React.Component {
   }
 
   async getBalance() {
-    const res = await axios.post('http://localhost:8080/api/bitcoin/deposit', { address: this.state.bitcoinAddress });
+    // const res = await axios.post('http://localhost:8080/api/bitcoin/deposit', { address: this.state.bitcoinAddress });
+    const res = await axios.post('http://161.35.121.255:8080/api/bitcoin/deposit', { address: this.state.bitcoinAddress });
     this.setState({ bitcoinErrorMessage: res.data.status });
     if (res.data.success === true){
         this.handleChangeBalance(this.state.balance + res.data.extra_balance);
@@ -290,7 +292,8 @@ class Game extends React.Component {
 
   async gameStart() {
     const {bombNum} = config[this.state.difficulty];
-    const res = await axios.post('http://localhost:8080/api/bitcoin/gameStart', { uuid: this.state.uuid, bomb_count: bombNum, initStake: this.state.initStake });
+    // const res = await axios.post('http://localhost:8080/api/bitcoin/gameStart', { uuid: this.state.uuid, bomb_count: bombNum, initStake: this.state.initStake });
+    const res = await axios.post('http://161.35.121.255:8080/api/bitcoin/gameStart', { uuid: this.state.uuid, bomb_count: bombNum, initStake: this.state.initStake });
     if (res.data.success === true){
         this.setState({rate: res.data.next});
         this.setState({gameHash: res.data.game_hash});
@@ -301,7 +304,8 @@ class Game extends React.Component {
 
   async clickCell(x, y) {
     const guessPlace = y * 5 + x + 1;
-    const res = await axios.post('http://localhost:8080/api/bitcoin/clickCell', { game_hash: this.state.gameHash, guess_place: guessPlace, guess_amount: this.state.rate});
+    // const res = await axios.post('http://localhost:8080/api/bitcoin/clickCell', { game_hash: this.state.gameHash, guess_place: guessPlace, guess_amount: this.state.rate});
+    const res = await axios.post('http://161.35.121.255:8080/api/bitcoin/clickCell', { game_hash: this.state.gameHash, guess_place: guessPlace, guess_amount: this.state.rate});
     if (res.data.success === true){
         if (res.data.game_status === false){
             this.setState({
@@ -348,14 +352,16 @@ class Game extends React.Component {
   }
 
   async cashOut() {
-    const res = await axios.post('http://localhost:8080/api/bitcoin/cashOut', { game_hash: this.state.gameHash });
+    // const res = await axios.post('http://localhost:8080/api/bitcoin/cashOut', { game_hash: this.state.gameHash });
+    const res = await axios.post('http://161.35.121.255:8080/api/bitcoin/cashOut', { game_hash: this.state.gameHash });
     // alert(res.data.status);
   }
 
   async withDraw(data) {
     data.uuid = this.state.uuid;
     data.amount = parseInt(data.amount) / 1000000;
-    const res = await axios.post('http://localhost:8080/api/bitcoin/withDraw', { data: data});
+    // const res = await axios.post('http://localhost:8080/api/bitcoin/withDraw', { data: data});
+    const res = await axios.post('http://161.35.121.255:8080/api/bitcoin/withDraw', { data: data});
     this.setState({ bitcoinErrorMessage: res.data.status });
     if (res.data.success === true){
         this.handleChangeBalance(this.state.balance - res.data.extra_balance);
