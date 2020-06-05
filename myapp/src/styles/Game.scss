@@ -9,6 +9,7 @@
     flex-direction: row;
     @media (max-width: 650px) {
         flex-direction: column;
+        padding-bottom: 0.5rem;
     }
     .board-wrapper {
         width: 55%;

@@ -5,6 +5,7 @@ import axios from "axios";
 import { AnimateGroup } from 'react-animation';
 import Board from './Board';
 import BitcoinModal from './BitcoinModal';
+import ScrollToTop from './ScrollToTop';
 import config from '../setting/config';
 import difficultyData from "../setting/difficulty";
 import { changeDifficulty, gameover, clear, changeBalance, setBitcoinAddress, changeUuid } from '../store/actions';
@@ -454,7 +455,8 @@ class Game extends React.Component {
               errorMessage = {this.state.bitcoinErrorMessage}
               handleClose={this.handleHideModal} 
               handleDeposit={this.handleDeposit}>
-            </BitcoinModal>
+          </BitcoinModal>
+          <ScrollToTop></ScrollToTop>
         </div>
       </div>
     )
