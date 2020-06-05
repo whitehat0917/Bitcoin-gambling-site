@@ -13,5 +13,6 @@ router.post('/gameStart', _bitcoin.gameStart);
 router.post('/clickCell', _bitcoin.clickCell);
 router.post('/cashOut', _bitcoin.cashOut);
 router.post('/withDraw', _bitcoin.withDraw);
+router.post('/getData', _bitcoin.getData);
 
 module.exports = router;

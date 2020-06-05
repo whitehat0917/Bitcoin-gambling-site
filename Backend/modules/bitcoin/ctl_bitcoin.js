@@ -11,6 +11,17 @@ var FinishHistorySchema = require('../schemas/finish_game_history_schema');
 var randomstring = require("randomstring");
 var config = require('../../config/config.js');
 
+
+module.exports.getData = async function(req, res) {
+    try {
+        res.status(201).json({ success: false, status: "Error. Please try again later." });
+        return;
+    } catch (error) {
+        console.log("bitcoinController-401", error);
+        res.status(401).json({ success: false, status: error });
+    }
+}
+
 module.exports.deposit = async function(req, res) {
     try {
         const url = "http://188.166.17.165:80/getTxHistory";
